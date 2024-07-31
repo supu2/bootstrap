@@ -1,0 +1,66 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: jitsi
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://jitsi-contrib.github.io/jitsi-helm/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jitsi
+  namespace: flux-system
+spec:
+  interval: 1h
+  install:
+    createNamespace: true
+  targetNamespace: jitsi  
+  dependsOn:
+    - name: ingress-nginx
+  chart:
+    spec:
+      chart: jitsi-meet
+      sourceRef:
+        kind: HelmRepository
+        name: jitsi
+        namespace: flux-system
+      interval: 1h
+  values:
+    publicURL: "vk.incloudy.io"
+    web:
+      replicaCount: 1
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        hosts:
+        - host: "vk.incloudy.io"
+          paths: ['/']            
+    jvb:
+      replicaCount: 1
+      publicIPs:
+        - 127.0.0.1
+      service:
+        externalTrafficPolicy: ""
+      xmpp:
+        password: "123asd12esd"            
+    octo:
+      enabled: true
+    jicofo:
+      xmpp:
+        password: "123asd12esd"      
+    jibri:
+      enabled: true
+      xmpp:
+        password: "123asd12esd"     
+      recorder:
+        password: "123asd12esd"
+      singleUseMode: false
+      replicaCount: 1
+      recording: true
+      livestreaming: true
+      persistence:
+        enabled: false
+      shm:
+        enabled: true
