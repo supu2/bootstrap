@@ -4,6 +4,7 @@ apiVersion: v1
 metadata:
   name: flux-system
 ---
+---
 # Source: flux/templates/helm-controller/networkpolicy.yaml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -73,3 +74,454 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/component: helm-controller
 automountServiceAccountToken: false
+---
+# Source: flux/templates/helm-controller/clusterroles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-manager
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases/finalizers
+    verbs:
+      - create
+      - delete
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - source.toolkit.fluxcd.io
+    resources:
+      - helmcharts
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - source.toolkit.fluxcd.io
+    resources:
+      - helmcharts/status
+    verbs:
+      - get
+---
+# Source: flux/templates/helm-controller/clusterroles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-helmrelease-editor
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+rules:
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases/status
+    verbs:
+      - get
+---
+# Source: flux/templates/helm-controller/clusterroles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-helmrelease-viewer
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+rules:
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases/status
+    verbs:
+      - get
+---
+# Source: flux/templates/helm-controller/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-manager
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flux-flux-system-helm-controller-manager
+subjects:
+  - kind: ServiceAccount
+    name: flux-helm-controller
+    namespace: "flux-system"
+---
+# Source: flux/templates/helm-controller/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-helmrelease-editor
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flux-flux-system-helm-controller-helmrelease-editor
+subjects:
+  - kind: ServiceAccount
+    name: flux-helm-controller
+    namespace: "flux-system"
+---
+# Source: flux/templates/helm-controller/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-helmrelease-viewer
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flux-flux-system-helm-controller-helmrelease-viewer
+subjects:
+  - kind: ServiceAccount
+    name: flux-helm-controller
+    namespace: "flux-system"
+---
+# Source: flux/templates/helm-controller/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-cluster-reconciler
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: flux-helm-controller
+    namespace: "flux-system"
+---
+# Source: flux/templates/helm-controller/roles.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-leader-election
+  namespace: "flux-system"
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps/status
+    verbs:
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+---
+# Source: flux/templates/helm-controller/rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flux-flux-system-helm-controller-leader-election
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/component: helm-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: flux-flux-system-helm-controller-leader-election
+subjects:
+  - kind: ServiceAccount
+    name: flux-helm-controller
+    namespace: "flux-system"
+---
+# Source: flux/templates/helm-controller/service-metrics.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: flux-helm-controller-metrics
+  namespace: "flux-system"
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+  annotations:
+    prometheus.io/port: "80"
+    prometheus.io/scrape: "true"
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http-metrics
+      port: 80
+      protocol: TCP
+      nodePort: null
+      targetPort: http-metrics
+  selector:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/component: helm-controller
+---
+# Source: flux/templates/helm-controller/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flux-helm-controller
+  namespace: "flux-system"
+  labels:
+    app.kubernetes.io/instance: flux
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/version: 1.0.1
+    helm.sh/chart: flux-2.3.12
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/component: helm-controller
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: flux
+      app.kubernetes.io/name: flux
+      app.kubernetes.io/component: helm-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: flux
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: flux
+        app.kubernetes.io/version: 1.0.1
+        helm.sh/chart: flux-2.3.12
+        app.kubernetes.io/part-of: flux
+        app.kubernetes.io/component: helm-controller
+    spec:
+      serviceAccountName: flux-helm-controller
+      
+      automountServiceAccountToken: true
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: flux
+                    app.kubernetes.io/name: flux
+                    app.kubernetes.io/component: helm-controller
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+      containers:
+        - name: helm-controller
+          image: docker.io/bitnami/fluxcd-helm-controller:1.0.1-debian-12-r8
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          args:
+            - --watch-all-namespaces=true
+            - --log-level=info
+            - --metrics-addr=:8080
+            - --health-addr=:9440
+            - --log-encoding=json
+            - --enable-leader-election
+          env:
+            - name: RUNTIME_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+          ports:
+            - name: http-metrics
+              containerPort: 8080
+            - name: http-health
+              containerPort: 9440
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /healthz
+              port: http-health
+          readinessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /readyz
+              port: http-health
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+---
