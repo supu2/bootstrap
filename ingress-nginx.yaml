@@ -17,8 +17,8 @@ spec:
   install:
     createNamespace: true  
   targetNamespace: ingress-nginx
-  dependsOn:
-    - name: ingress-nginx-secret
+  #dependsOn:
+  #  - name: ingress-nginx-secret
   chart:
     spec:
       chart: ingress-nginx
