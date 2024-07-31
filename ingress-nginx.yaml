@@ -1,0 +1,41 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: ingress-nginx
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://kubernetes.github.io/ingress-nginx
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: flux-system
+spec:
+  interval: 1h
+  install:
+    createNamespace: true  
+  targetNamespace: ingress-nginx
+  dependsOn:
+    - name: ingress-nginx-secret
+  chart:
+    spec:
+      chart: ingress-nginx
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+      interval: 1h
+  values:
+    controller:
+      extraArgs:
+        default-ssl-certificate: "ingress-nginx/tls-wildcards"
+      service:
+        type: NodePort
+        nodePorts:
+          http: 31000
+          https: 31001
+          10000-udp: 31002
+    udp:
+      10000: "jitsi/jitsi-jitsi-jitsi-meet-jvb:10000"	
